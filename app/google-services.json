@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "823072586251",
+    "firebase_url": "https://coosinstaff.firebaseio.com",
+    "project_id": "coosinstaff",
+    "storage_bucket": "coosinstaff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:823072586251:android:259e1cf868efc7a1d4e50e",
+        "android_client_info": {
+          "package_name": "com.example.coosinstaff"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "823072586251-7rn7564t29lr55t1lr62gc128gqu81th.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.coosinstaff",
+            "certificate_hash": "3b1e5507a7247bc1644d98c04adaee7ae38cbb6a"
+          }
+        },
+        {
+          "client_id": "823072586251-3a9k30a521rbkqi6cqp4l5clkt5fiihs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYymqn7fE-ztnHrYrbWv2-5VqxIehrxgY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "823072586251-3a9k30a521rbkqi6cqp4l5clkt5fiihs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

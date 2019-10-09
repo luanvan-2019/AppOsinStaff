@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="10"
+    tools:context=".LoginActivity">
+
+
+    <RelativeLayout
+        android:layout_weight="0.9"
+        android:id="@+id/relative_toolbar_login"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+        <androidx.appcompat.widget.Toolbar
+            app:navigationIcon="@drawable/ic_back"
+            android:id="@+id/toolbar_login"
+            android:background="@drawable/bg_gradient"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize">
+        </androidx.appcompat.widget.Toolbar>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:text="Đăng nhập"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@color/colorWhite"
+            android:gravity="center"
+            android:id="@+id/toolbar_title"
+            style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_weight="8"
+        android:gravity="center_vertical"
+        android:layout_marginTop="10dp"
+        android:id="@+id/linearlayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:padding="15dp">
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_marginTop="20dp"
+            app:boxStrokeColor="@color/enable"
+            android:id="@+id/text_input_layout_phonenum"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:hint="Số điện thoại"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_phonenum"
+                android:inputType="number"
+                android:maxLength="10"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            app:boxStrokeColor="@color/enable"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:id="@+id/text_input_layout_password"
+            android:layout_marginTop="15dp"
+            android:layout_below="@+id/text_input_layout_phonenum"
+            app:passwordToggleTint="@color/enable"
+            android:hint="Mật khẩu"
+            app:passwordToggleEnabled="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:inputType="textPassword"
+                android:id="@+id/edt_password"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </com.google.android.material.textfield.TextInputLayout>
+        <RelativeLayout
+            android:id="@+id/ralative_dieukien_hoptac"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:layout_below="@+id/text_input_layout_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <CheckBox
+                android:id="@+id/checkbox_dieukien_hoptac"
+                android:button="@drawable/checkbox_selector"
+                android:layout_width="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_height="wrap_content"
+                android:text="  Đồng ý với "
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@drawable/checkbox_color_selector"/>
+            <TextView
+                android:id="@+id/txtDieuKienHopTac"
+                android:layout_toRightOf="@+id/checkbox_dieukien_hoptac"
+                android:textColor="@color/colorBlack"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_centerVertical="true"
+                android:text="@string/dieukienhoptac"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+        <TextView
+            android:id="@+id/txt_forget_password"
+            android:textSize="18sp"
+            android:textColor="#f20"
+            android:text="Quên mật khẩu?"
+            android:layout_marginTop="20dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/ralative_dieukien_hoptac"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_weight="1.1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+        <View
+            android:background="@color/disable"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"/>
+        <Button
+            android:layout_margin="10dp"
+            android:id="@+id/btn_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/btn_round_coner"
+            android:text="Đăng nhập"
+            android:textAllCaps="false"
+            android:textColor="@color/colorWhite"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+</LinearLayout>
