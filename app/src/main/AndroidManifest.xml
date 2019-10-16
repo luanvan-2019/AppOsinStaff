@@ -6,9 +6,9 @@
     <application
         android:name=".SleepSplashScreen"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_logo_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/ic_logo_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".DieuKienHopTacActivity"></activity>
@@ -17,7 +17,8 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity"
             android:windowSoftInputMode="adjustResize"/>
-        <activity android:name=".HomeActivity" />
+        <activity android:name=".HomeActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".MainActivity" />
         <activity
             android:name=".SplashActivity"

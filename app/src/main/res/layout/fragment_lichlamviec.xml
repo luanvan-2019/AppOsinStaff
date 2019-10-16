@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#DDF6FA">
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:elevation="10dp"
+        android:background="@color/colorWhite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </com.google.android.material.tabs.TabLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:layout_below="@+id/tab_layout"
+        android:background="@drawable/toolbar_dropshadow" />
+
+    <RelativeLayout
+        android:id="@+id/ralative_taithem"
+        android:layout_marginTop="5dp"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/ic_taithem"
+            android:src="@drawable/ic_taithem"
+            android:layout_centerVertical="true"
+            android:layout_width="20dp"
+            android:layout_height="20dp"/>
+        <TextView
+            android:layout_toRightOf="@+id/ic_taithem"
+            android:textSize="16sp"
+            android:layout_marginLeft="10dp"
+            android:layout_centerVertical="true"
+            android:text="Vuốt xuống để tải thêm lịch mới"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+    <androidx.viewpager.widget.ViewPager
+        android:background="#DDF6FA"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/ralative_taithem"
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </androidx.viewpager.widget.ViewPager>
+
+</LinearLayout>

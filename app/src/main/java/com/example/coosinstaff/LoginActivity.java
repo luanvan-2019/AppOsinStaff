@@ -4,6 +4,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,11 +35,17 @@ public class LoginActivity extends AppCompatActivity {
     Button btnLogin;
     Connection connect;
     String phone_num,password;
+    ProgressDialog pd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        pd = new ProgressDialog(LoginActivity.this);
+        pd.setTitle("Đăng nhập");
+        pd.setMessage("Vui lòng đợi...");
+        pd.setCancelable(false);
 
         edtPhoneNum = findViewById(R.id.edt_phonenum);
         edtPassword = findViewById(R.id.edt_password);
@@ -52,7 +59,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 phone_num = edtPhoneNum.getText().toString().trim();
                 password= edtPassword.getText().toString().trim();
-                Log.d("BBB",phone_num);
                 try
                 {
                     com.example.coosinstaff.connection.ConnectionDB conStr=new com.example.coosinstaff.connection.ConnectionDB();

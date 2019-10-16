@@ -43,7 +43,6 @@ public class ConfirmRegisterActivity extends AppCompatActivity {
                 Intent login = new Intent(ConfirmRegisterActivity.this,HomeActivity.class);
                 CheckLogined.SharedPrefesSAVE(getApplicationContext(),getIntent().getStringExtra("phone_num"));
                 login.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                CheckLogined.SharedPrefesSAVE(getApplicationContext(),getIntent().getStringExtra("phone_num"));
                 startActivity(login);
             }
         });
