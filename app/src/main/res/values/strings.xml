@@ -4,7 +4,9 @@
     <string name="guilai"><u>Gửi lại</u></string>
 
     <string name="dieukienhoptac"><u>Điều kiện hợp tác</u></string>
-    
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="checkaccount">"Để nhận lịch làm bạn vui lòng chuẩn bị hồ sơ, liên hệ phòng tuyển dụng để được hướng dẫn chi tiết: <u>0921895314</u>"</string>
 </resources>

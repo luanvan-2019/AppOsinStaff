@@ -13,9 +13,15 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug {
+            buildConfigField 'String', "ApiKey", API_KEY
+            resValue 'string', "ApiKey", API_KEY
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField 'String', "ApiKey", API_KEY
+            resValue 'string', "ApiKey", API_KEY
         }
     }
 }
@@ -40,4 +46,7 @@ dependencies {
     implementation('com.github.thekhaeng:pushdown-anim-click:1.1.1') {
         exclude group: 'com.android.support'
     }
+
+    //map
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
 }

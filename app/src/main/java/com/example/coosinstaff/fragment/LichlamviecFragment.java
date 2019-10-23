@@ -75,16 +75,16 @@ public class LichlamviecFragment extends Fragment {
         if (empType == 1){
             adapter.addFragment(new FragmentDungle(),"Dùng lẻ");
             adapter.addFragment(new Fragment_dungdk(),"Dùng định kỳ");
-//            adapter.addFragment(new Fragment_tongvs(),"Tổng vệ sinh");
+            adapter.addFragment(new FragmentTVS(),"Tổng vệ sinh");
             tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         }else if (empType == 2){
-//            adapter.addFragment(new Fragment_dvnauan(),"DV nấu ăn");
+            adapter.addFragment(new FragmentNauAn(),"DV nấu ăn");
             tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         }else {
             adapter.addFragment(new FragmentDungle(),"Dùng lẻ");
             adapter.addFragment(new Fragment_dungdk(),"Dùng định kỳ");
-//            adapter.addFragment(new Fragment_tongvs(),"Tổng vệ sinh");
-//            adapter.addFragment(new Fragment_dvnauan(),"DV nấu ăn");
+            adapter.addFragment(new FragmentTVS(),"Tổng vệ sinh");
+            adapter.addFragment(new FragmentNauAn(),"DV nấu ăn");
             tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         }
 

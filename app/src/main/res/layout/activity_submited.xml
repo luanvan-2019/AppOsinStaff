@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <RelativeLayout
+        android:id="@+id/relative_toolbar_login"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize">
+        <androidx.appcompat.widget.Toolbar
+            app:navigationIcon="@drawable/ic_back"
+            android:id="@+id/toolbar_submited"
+            android:background="@drawable/bg_gradient"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize">
+        </androidx.appcompat.widget.Toolbar>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:text="Lịch đã nhận"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@color/colorWhite"
+            android:gravity="center"
+            android:id="@+id/toolbar_title"
+            style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"/>
+    </RelativeLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:background="#DDF6FA"
+        tools:listitem="@layout/item_list_submited"
+        android:id="@+id/recyclerview_submited"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </androidx.recyclerview.widget.RecyclerView>
+</LinearLayout>

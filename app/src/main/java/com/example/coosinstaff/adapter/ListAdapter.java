@@ -3,6 +3,7 @@ package com.example.coosinstaff.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.coosinstaff.R;
 import com.example.coosinstaff.model.ListOrder;
+import com.example.coosinstaff.model.OnItemClickListener;
+import com.thekhaeng.pushdownanim.PushDownAnim;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -18,7 +21,11 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListHolder> {
 
     ArrayList<ListOrder> mangListorder;
 
-    HandelClick handelClick;
+    private OnItemClickListener mOnItemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener mOnItemClickListener){
+        this.mOnItemClickListener = mOnItemClickListener;
+    }
 
     public ListAdapter(ArrayList<ListOrder> mangListorder) {
         this.mangListorder = mangListorder;
@@ -57,6 +64,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListHolder> {
 
         private TextView mOrderType, mOrderPrice, mOrderLocation, mNearby, mOrderDate, mOrderTime,
                 mOrderCreateAt, mOrderSeen;
+        private Button btnSubmit;
 
         public ListHolder(@NonNull View itemView) {
             super(itemView);
@@ -68,27 +76,22 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListHolder> {
             mOrderTime = itemView.findViewById(R.id.time);
             mOrderCreateAt = itemView.findViewById(R.id.time_gui);
             mOrderSeen = itemView.findViewById(R.id.songuoixem);
+            btnSubmit = itemView.findViewById(R.id.btn_nhanlich);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
+            PushDownAnim.setPushDownAnimTo(btnSubmit).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-//                    handelClick.onClick(view,(int) view.getTag());
+                    mOnItemClickListener.onClick(view, getLayoutPosition());
                 }
             });
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            PushDownAnim.setPushDownAnimTo(btnSubmit).setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    handelClick.onLongClick(view, (Integer) view.getTag());
+                    mOnItemClickListener.onLongClick(view, getLayoutPosition());
                     return true;
                 }
             });
         }
     }
-//    public void addList(ListOrder listOrder){
-//        mangListorder.add(listOrder);
-//        notifyDataSetChanged();
-//    }
-//    public void listenClick(HandelClick handelClick){
-//        this.handelClick = handelClick;
-//    }
+
 }

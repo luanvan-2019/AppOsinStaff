@@ -114,7 +114,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         switch (item.getItemId()){
             case R.id.cart:
-                Toast.makeText(getApplicationContext(),"Đã nhân",Toast.LENGTH_LONG).show();
+                Intent submited = new Intent(HomeActivity.this, SubmitedActivity.class);
+                startActivity(submited);
         }
 
         return super.onOptionsItemSelected(item);

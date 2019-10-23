@@ -115,12 +115,39 @@
                 android:layout_below="@+id/txt_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
+            <ImageView
+                android:layout_marginTop="10dp"
+                android:src="@drawable/ic_area"
+                android:id="@+id/ic_area"
+                android:layout_below="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_marginLeft="10dp"
+                android:text="Diện tích nhà"
+                android:textSize="16sp"
+                android:layout_marginTop="10dp"
+                android:layout_toRightOf="@+id/ic_area"
+                android:layout_below="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/txt_area"
+                android:layout_marginLeft="10dp"
+                android:text="800m2"
+                android:textColor="@color/enable"
+                android:textSize="16sp"
+                android:layout_marginTop="5dp"
+                android:layout_toRightOf="@+id/ic_area"
+                android:layout_below="@+id/ic_area"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
             <TextView
                 android:id="@+id/label_time_gui"
                 android:textSize="14sp"
                 android:text="Gủi lúc:"
                 android:layout_marginTop="15dp"
-                android:layout_below="@+id/time"
+                android:layout_below="@+id/txt_area"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
             <TextView
@@ -130,7 +157,7 @@
                 android:text="10:00, 12/10/2019"
                 android:layout_marginLeft="5dp"
                 android:layout_marginTop="15dp"
-                android:layout_below="@+id/time"
+                android:layout_below="@+id/txt_area"
                 android:layout_toRightOf="@+id/label_time_gui"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
