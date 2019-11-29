@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.coosinstaff.model.CheckLogined;
+import com.example.coosinstaff.model.EncryptionPassword;
 import com.thekhaeng.pushdownanim.PushDownAnim;
 
 import java.sql.Connection;
@@ -30,7 +31,7 @@ import java.util.Date;
 public class LoginActivity extends AppCompatActivity {
 
     EditText edtPhoneNum,edtPassword;
-    TextView txtDieuKienHopTac,txtForgetPassword;
+    TextView txtDieuKienHopTac,txtForgetPassword,toSignup;
     CheckBox checkBoxDieuKien;
     Button btnLogin;
     Connection connect;
@@ -53,6 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         checkBoxDieuKien = findViewById(R.id.checkbox_dieukien_hoptac);
         txtForgetPassword = findViewById(R.id.txt_forget_password);
         btnLogin = findViewById(R.id.btn_login);
+        toSignup = findViewById(R.id.toSignup);
 
         PushDownAnim.setPushDownAnimTo(btnLogin).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,17 +79,33 @@ public class LoginActivity extends AppCompatActivity {
                     }else
                     {
                         String query = "select * from EMPLOYEE where PHONE_NUM= '" + phone_num
-                                +"'AND PASSWORD='"+ password +"'";
-                        Log.d("BBB",query);
+                                +"' AND PASSWORD='"+ EncryptionPassword.md5(password) +"'";
                         Statement stmt = connect.createStatement();
                         ResultSet rs = stmt.executeQuery(query);
                         if(rs.next())
                         {
-                            Intent login = new Intent(LoginActivity.this,HomeActivity.class);
-                            login.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            CheckLogined.SharedPrefesSAVE(getApplicationContext(),phone_num);
-                            startActivity(login);
+                            if (rs.getInt("USER_STATUS")==0){
+                                AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                                builder.setTitle("Không thể đăng nhập");
+                                builder.setMessage("Tài khoản của bạn hiện đang bị khóa, thắc mắc xin liên hệ 0921895314!");
+                                builder.setCancelable(false);
+                                builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+
+                                    }
+                                });
+                                AlertDialog alertDialog = builder.create();
+                                alertDialog.show();
+                            }else {
+                                Intent login = new Intent(LoginActivity.this,HomeActivity.class);
+                                login.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                CheckLogined.SharedPrefesSAVE(getApplicationContext(),phone_num);
+                                startActivity(login);
+                            }
                             connect.close();
+
                         }
                         else showAlertDialog();
                     }
@@ -96,6 +114,22 @@ public class LoginActivity extends AppCompatActivity {
                 {
 
                 }
+            }
+        });
+
+        PushDownAnim.setPushDownAnimTo(txtForgetPassword).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this,ForgetPwAtivity.class);
+                startActivity(intent);
+            }
+        });
+
+        PushDownAnim.setPushDownAnimTo(toSignup).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this,RegisterActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -129,4 +163,5 @@ public class LoginActivity extends AppCompatActivity {
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
+
 }

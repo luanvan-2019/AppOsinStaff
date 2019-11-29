@@ -1,5 +1,6 @@
 package com.example.coosinstaff.adapter;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,9 +56,17 @@ public class ListAdapterSubmited extends RecyclerView.Adapter<ListAdapterSubmite
             holder.txtMahoadon.setText("MĐH: DL"+listSubmited.getMahoadon());
         }else if (listSubmited.getOrdertype().trim().equals("Định kỳ")){
             holder.txtMahoadon.setText("MĐH: DK"+listSubmited.getMahoadon());
+            holder.txtOrderType.setBackgroundResource(R.drawable.bg_text_orange);
+            holder.txtOrderType.setTextColor(Color.WHITE);
         }else if (listSubmited.getOrdertype().trim().equals("Nấu ăn")){
             holder.txtMahoadon.setText("MĐH: NA"+listSubmited.getMahoadon());
-        }else holder.txtMahoadon.setText("MĐH: TVS"+listSubmited.getMahoadon());
+            holder.txtOrderType.setBackgroundResource(R.drawable.bg_text_pink);
+            holder.txtOrderType.setTextColor(Color.WHITE);
+        }else {
+            holder.txtMahoadon.setText("MĐH: TVS"+listSubmited.getMahoadon());
+            holder.txtOrderType.setBackgroundResource(R.drawable.bg_text_ryan);
+            holder.txtOrderType.setTextColor(Color.WHITE);
+        }
 
     }
 

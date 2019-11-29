@@ -45,6 +45,7 @@ public class OTPActivity extends AppCompatActivity {
     String phone_num,phonenumber,fullname,password;
     Connection connect;
     Integer empType;
+    Integer repassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +65,8 @@ public class OTPActivity extends AppCompatActivity {
         password = getIntent().getStringExtra("password");
         empType = getIntent().getIntExtra("loaicongviec",0);
         sendVerificationCode(phonenumber);
-        Log.d("BBB",fullname);
+
+        repassword = getIntent().getIntExtra("repassword",0);
 
         //back button
         Toolbar toolbar = findViewById(R.id.toolbar_otp);
@@ -119,56 +121,60 @@ public class OTPActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            try
-                            {
-                                com.example.coosinstaff.connection.ConnectionDB conStr=new com.example.coosinstaff.connection.ConnectionDB();
-                                connect =conStr.CONN();        // Connect to database
-                                if (connect == null)
+                            if (repassword==1){
+                                Intent intent = new Intent(OTPActivity.this,RepasswordActivity.class);
+                                intent.putExtra("phone_num",phone_num);
+                                startActivity(intent);
+                            }else {
+                                try
                                 {
-                                    Toast.makeText(getApplicationContext(), "Không có kết nối mạng!", Toast.LENGTH_LONG).show();
-                                }
-                                else
-                                {
-                                    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                                    Date date = new Date();
-                                    String current_date = formatter.format(date);
-                                    String query1 = "INSERT INTO EMPLOYEE (PHONE_NUM,FULL_NAME,PASSWORD,CREATE_AT,EMP_TYPE) VALUES('" + phone_num + "','"
-                                            + fullname + "','" + password + "','"  + current_date + "','"+ empType +"')";
-                                    Statement stmt1 = connect.createStatement();
-                                    ResultSet rs1 = stmt1.executeQuery(query1);
-                                    if(rs1.next())
+                                    com.example.coosinstaff.connection.ConnectionDB conStr=new com.example.coosinstaff.connection.ConnectionDB();
+                                    connect =conStr.CONN();        // Connect to database
+                                    if (connect == null)
                                     {
-                                        Intent intent = new Intent(OTPActivity.this, ConfirmRegisterActivity.class);
-                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                        intent.putExtra("phonenumber", phonenumber);
-                                        intent.putExtra("phone_num", phone_num);
-                                        intent.putExtra("fullname",fullname);
-                                        intent.putExtra("password",password);
-                                        intent.putExtra("loaicongviec",empType);
-                                        startActivity(intent);
-                                        connect.close();
+                                        Toast.makeText(getApplicationContext(), "Không có kết nối mạng!", Toast.LENGTH_LONG).show();
+                                    }
+                                    else
+                                    {
+                                        DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                                        Date date = new Date();
+                                        String current_date = formatter.format(date);
+                                        String query1 = "INSERT INTO EMPLOYEE (PHONE_NUM,FULL_NAME,PASSWORD,CREATE_AT,EMP_TYPE) VALUES('" + phone_num + "',N'"
+                                                + fullname + "','" + password + "','"  + current_date + "','"+ empType +"')";
+                                        Statement stmt1 = connect.createStatement();
+                                        ResultSet rs1 = stmt1.executeQuery(query1);
+                                        if(rs1.next())
+                                        {
+                                            Intent intent = new Intent(OTPActivity.this, ConfirmRegisterActivity.class);
+                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                            intent.putExtra("phonenumber", phonenumber);
+                                            intent.putExtra("phone_num", phone_num);
+                                            intent.putExtra("fullname",fullname);
+                                            intent.putExtra("password",password);
+                                            intent.putExtra("loaicongviec",empType);
+                                            startActivity(intent);
+                                            connect.close();
+                                        }
                                     }
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                Intent intent = new Intent(OTPActivity.this, ConfirmRegisterActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                intent.putExtra("phonenumber", phonenumber);
-                                intent.putExtra("phone_num", phone_num);
-                                intent.putExtra("fullname",fullname);
-                                intent.putExtra("password",password);
-                                intent.putExtra("loaicongviec",empType);
+                                catch (Exception ex)
+                                {
+                                    Intent intent = new Intent(OTPActivity.this, ConfirmRegisterActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    intent.putExtra("phonenumber", phonenumber);
+                                    intent.putExtra("phone_num", phone_num);
+                                    intent.putExtra("fullname",fullname);
+                                    intent.putExtra("password",password);
+                                    intent.putExtra("loaicongviec",empType);
 //                                CheckLogined.SharedPrefesSAVE(getApplicationContext(),phone_num);
-                                startActivity(intent);
+                                    startActivity(intent);
+                                }
                             }
-
                         } else {
                             Toast.makeText(OTPActivity.this, "Mã xác thực không chính xác!", Toast.LENGTH_LONG).show();
                             progressBar.setVisibility(View.GONE);
                         }
                     }
-
                 });
     }
 

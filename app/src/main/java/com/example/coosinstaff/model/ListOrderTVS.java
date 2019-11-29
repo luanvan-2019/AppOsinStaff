@@ -11,8 +11,10 @@ public class ListOrderTVS {
     private String area;
     private String createAt;
     private Integer seenCount;
+    private String userSubmitAmount;
 
-    public ListOrderTVS(String orderType, int price, String location, String nearby, String date, String time,String area, String createAt, Integer seenCount) {
+    public ListOrderTVS(String orderType, int price, String location, String nearby, String date, String time,String area, String createAt, Integer seenCount,
+                        String userSubmitAmount) {
         this.orderType = orderType;
         this.price = price;
         this.location = location;
@@ -22,6 +24,7 @@ public class ListOrderTVS {
         this.area = area;
         this.createAt = createAt;
         this.seenCount = seenCount;
+        this.userSubmitAmount = userSubmitAmount;
     }
 
     public String getOrderType() {
@@ -94,5 +97,13 @@ public class ListOrderTVS {
 
     public void setSeenCount(Integer seenCount) {
         this.seenCount = seenCount;
+    }
+
+    public String getUserSubmitAmount() {
+        return userSubmitAmount;
+    }
+
+    public void setUserSubmitAmount(String userSubmitAmount) {
+        this.userSubmitAmount = userSubmitAmount;
     }
 }

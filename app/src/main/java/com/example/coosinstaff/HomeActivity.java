@@ -17,6 +17,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.example.coosinstaff.fragment.ChatFragment;
 import com.example.coosinstaff.fragment.DaotaoFragment;
 import com.example.coosinstaff.fragment.HotroFragment;
 import com.example.coosinstaff.fragment.LichlamviecFragment;
@@ -24,12 +25,18 @@ import com.example.coosinstaff.fragment.ThongbaoFragment;
 import com.example.coosinstaff.fragment.VideogioithieuFragment;
 import com.example.coosinstaff.model.CheckLogined;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     String account;
     Toolbar toolbar;
     private DrawerLayout drawer;
+    Connection connect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +46,43 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         //lay so dien thoai da luu khi dang nhap
         SharedPreferences SP = getApplicationContext().getSharedPreferences("PHONE",0);
         account = SP.getString("phone_num",null);
+
+        FirebaseMessaging.getInstance().subscribeToTopic("/topics/lich");
+
+        try {
+            com.example.coosinstaff.connection.ConnectionDB conStr = new com.example.coosinstaff.connection.ConnectionDB();
+            connect = conStr.CONN();
+            String query = "select * from EMPLOYEE where PHONE_NUM= '" + account+"'";
+            Statement stmt = connect.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            if(rs.next())
+            {
+                if (rs.getInt("USER_STATUS")==0){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+                    builder.setTitle("Không thể đăng nhập");
+                    builder.setMessage("Tài khoản của bạn hiện đang bị khóa, thắc mắc xin liên hệ 0921895314 !");
+                    builder.setCancelable(false);
+                    builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                            Intent login = new Intent(HomeActivity.this,MainActivity.class);
+                            login.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            CheckLogined.SharedPrefesSAVE(getApplicationContext(),getIntent().getStringExtra(null));
+                            startActivity(login);
+
+                        }
+                    });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+                }
+                connect.close();
+
+            }
+        }
+        catch (Exception e){
+
+        }
 
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Lịch làm việc");
@@ -77,9 +121,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_doisongnhanvien:
                 Intent toFacebook = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/daominhthai1997"));
                 startActivity(toFacebook);
-//                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new FanfageFragment()).commit();
                 break;
             case R.id.nav_lichlamviec:
+                LoadingDialog loadingDialog = new LoadingDialog();
+                loadingDialog.loading(HomeActivity.this);
                 toolbar.setTitle("Lịch làm việc");
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new LichlamviecFragment()).commit();
                 break;
@@ -94,6 +139,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_hotro:
                 toolbar.setTitle("Hỗ trợ");
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HotroFragment()).commit();
+                break;
+            case R.id.nav_chat:
+                toolbar.setTitle("Tin nhắn");
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new ChatFragment()).commit();
                 break;
             case R.id.nav_logout:
                 dialogLogout();
@@ -114,8 +163,17 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         switch (item.getItemId()){
             case R.id.cart:
+                LoadingDialog loadingDialog = new LoadingDialog();
+                loadingDialog.loading(this);
                 Intent submited = new Intent(HomeActivity.this, SubmitedActivity.class);
                 startActivity(submited);
+                return true;
+            case R.id.history:
+                LoadingDialog loadingDialog1 = new LoadingDialog();
+                loadingDialog1.loading(this);
+                Intent history = new Intent(HomeActivity.this, HistoryActivity.class);
+                startActivity(history);
+                return true;
         }
 
         return super.onOptionsItemSelected(item);

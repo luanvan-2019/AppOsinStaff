@@ -3,6 +3,7 @@ package com.example.coosinstaff.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.coosinstaff.R;
 import com.example.coosinstaff.model.ListOrder;
 import com.example.coosinstaff.model.ListOrderNauAn;
+import com.example.coosinstaff.model.OnItemClickListener;
+import com.thekhaeng.pushdownanim.PushDownAnim;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -19,6 +22,11 @@ public class ListAdapterNauAn extends RecyclerView.Adapter<ListAdapterNauAn.List
 
     ArrayList<ListOrderNauAn> mangListorder;
 
+    private OnItemClickListener mOnItemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener mOnItemClickListener){
+        this.mOnItemClickListener = mOnItemClickListener;
+    }
 
     public ListAdapterNauAn(ArrayList<ListOrderNauAn> mangListorder) {
         this.mangListorder = mangListorder;
@@ -67,6 +75,7 @@ public class ListAdapterNauAn extends RecyclerView.Adapter<ListAdapterNauAn.List
         private TextView mOrderType, mOrderPrice, mOrderLocation, mNearby, mOrderDate, mOrderTime,
                 mOrderPeopleAmount,mOrderDishAmount,mOrderTaste,mOrderFruit,mOrderMarket,
                 mOrderMarketPrice,mOrderCreateAt, mOrderSeen;
+        private Button btnSubmit;
 
         public ListHolder(@NonNull View itemView) {
             super(itemView);
@@ -83,10 +92,24 @@ public class ListAdapterNauAn extends RecyclerView.Adapter<ListAdapterNauAn.List
             mOrderFruit = itemView.findViewById(R.id.txt_traicay);
             mOrderMarket = itemView.findViewById(R.id.txt_dicho);
             mOrderMarketPrice = itemView.findViewById(R.id.txt_tiendicho);
+            btnSubmit = itemView.findViewById(R.id.btn_nhanlich);
 
             mOrderCreateAt = itemView.findViewById(R.id.time_gui);
             mOrderSeen = itemView.findViewById(R.id.songuoixem);
 
+            PushDownAnim.setPushDownAnimTo(btnSubmit).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mOnItemClickListener.onClick(view, getLayoutPosition());
+                }
+            });
+            PushDownAnim.setPushDownAnimTo(btnSubmit).setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    mOnItemClickListener.onLongClick(view, getLayoutPosition());
+                    return true;
+                }
+            });
         }
     }
 }

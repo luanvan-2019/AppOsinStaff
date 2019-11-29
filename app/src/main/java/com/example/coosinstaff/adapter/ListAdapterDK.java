@@ -3,6 +3,7 @@ package com.example.coosinstaff.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.coosinstaff.R;
 import com.example.coosinstaff.model.ListOrder;
 import com.example.coosinstaff.model.ListOrderDK;
+import com.example.coosinstaff.model.OnItemClickListener;
+import com.thekhaeng.pushdownanim.PushDownAnim;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -18,6 +21,12 @@ import java.util.ArrayList;
 public class ListAdapterDK extends RecyclerView.Adapter<ListAdapterDK.ListHolder> {
 
     ArrayList<ListOrderDK> mangListorder;
+
+    private OnItemClickListener mOnItemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener mOnItemClickListener){
+        this.mOnItemClickListener = mOnItemClickListener;
+    }
 
     public ListAdapterDK(ArrayList<ListOrderDK> mangListorder) {
         this.mangListorder = mangListorder;
@@ -58,6 +67,7 @@ public class ListAdapterDK extends RecyclerView.Adapter<ListAdapterDK.ListHolder
 
         private TextView mOrderType, mOrderPrice, mOrderLocation, mNearby, mOrderDateStart, mOrderDateEnd, mOrderSchedule, mOrderTime,
                 mOrderCreateAt, mOrderSeen;
+        private Button btnSubmit;
 
         public ListHolder(@NonNull View itemView) {
             super(itemView);
@@ -71,7 +81,21 @@ public class ListAdapterDK extends RecyclerView.Adapter<ListAdapterDK.ListHolder
             mOrderTime = itemView.findViewById(R.id.time);
             mOrderCreateAt = itemView.findViewById(R.id.time_gui);
             mOrderSeen = itemView.findViewById(R.id.songuoixem);
+            btnSubmit = itemView.findViewById(R.id.btn_nhanlich);
 
+            PushDownAnim.setPushDownAnimTo(btnSubmit).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mOnItemClickListener.onClick(view, getLayoutPosition());
+                }
+            });
+            PushDownAnim.setPushDownAnimTo(btnSubmit).setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    mOnItemClickListener.onLongClick(view, getLayoutPosition());
+                    return true;
+                }
+            });
         }
     }
     public void addList(ListOrderDK listOrder){

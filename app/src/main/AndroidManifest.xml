@@ -3,11 +3,18 @@
     xmlns:dist="http://schemas.android.com/apk/distribution"
     package="com.example.coosinstaff">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-feature android:name="android.hardware.location.gps" />
+    <uses-feature android:name="android.hardware.location.network" />
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <dist:module dist:instant="true" />
 
     <application
         android:name=".SleepSplashScreen"
@@ -17,13 +24,22 @@
         android:roundIcon="@drawable/ic_logo_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MapDirectionActivity"></activity>
+
+        <activity
+            android:name=".RepasswordActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ChatActivity" />
+        <activity android:name=".HistoryActivity" />
+        <activity android:name=".MapDirectionActivity" />
         <activity android:name=".SubmitedActivity" />
         <activity android:name=".SubmitOrderActivity" />
         <activity android:name=".DieuKienHopTacActivity" />
         <activity android:name=".ConfirmRegisterActivity" />
         <activity android:name=".OTPActivity" />
         <activity android:name=".RegisterActivity" />
+        <activity
+            android:name=".ForgetPwAtivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".LoginActivity"
             android:windowSoftInputMode="adjustResize" />
@@ -45,8 +61,23 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/ApiKey" />
-    </application>
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
-    <dist:module dist:instant="true" />
+<!--        <service android:name=".notifications.MyFirebaseInstanceIDService">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />-->
+<!--            </intent-filter>-->
+<!--        </service>-->
+<!--        <service-->
+<!--            android:name=".notifications.MyFirebaseMessagingService"-->
+<!--            android:permission="com.google.android.c2dm.permission.SEND">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.google.firebase.MESSAGING_EVENT" />-->
+<!--                <action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
+<!--            </intent-filter>-->
+<!--        </service>-->
+    </application>
 
 </manifest>

@@ -6,11 +6,16 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:background="#DDF6FA"
-        tools:listitem="@layout/item_list_order_dk"
-        android:id="@+id/recyclerview_dk"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_dinhky"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </androidx.recyclerview.widget.RecyclerView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:background="#DDF6FA"
+            tools:listitem="@layout/item_list_order_dk"
+            android:id="@+id/recyclerview_dk"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </androidx.recyclerview.widget.RecyclerView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

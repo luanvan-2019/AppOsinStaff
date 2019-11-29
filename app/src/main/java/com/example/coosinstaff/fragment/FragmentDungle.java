@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -19,12 +20,21 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.coosinstaff.HomeActivity;
 import com.example.coosinstaff.R;
 import com.example.coosinstaff.SubmitOrderActivity;
 import com.example.coosinstaff.adapter.ListAdapter;
 import com.example.coosinstaff.model.ListOrder;
 import com.example.coosinstaff.model.OnItemClickListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -33,6 +43,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class FragmentDungle extends Fragment {
 
@@ -54,6 +68,15 @@ public class FragmentDungle extends Fragment {
     String[] addressArr,dateArr,timeArr,create_atArr;
     Integer[] priceArr,seenArr,idArr;
 
+    SwipeRefreshLayout swipeRefreshLayout;
+
+    final private String FCM_API = "https://fcm.googleapis.com/fcm/send";
+    final private String serverKey = "key=" + "AAAAZNB3xoU:APA91bGxISuo_YVJ7-142Aua8xMYvafuhaZvNIf01IeOzVrZ1hEypTqdP53X3pMZg_Mx3XkkVJOdiiDCMnHp00ytrTJxLDaozcdVpEXc1AsciThWq5ZkiDOHswqSHsLEskoVXOpC8SZC";
+    final private String contentType = "application/json";
+    final String TAG = "NOTIFICATION TAG";
+    String NOTIFICATION_TITLE;
+    String NOTIFICATION_MESSAGE;
+
     public FragmentDungle() {
     }
 
@@ -63,12 +86,27 @@ public class FragmentDungle extends Fragment {
 
         view = inflater.inflate(R.layout.dungle_fragment,container,false);
         recyclerView = view.findViewById(R.id.recyclerview);
+        swipeRefreshLayout = view.findViewById(R.id.swipe_dungle);
 
 
         //lay so dien thoai da luu khi dang nhap
         SharedPreferences SP = getContext().getSharedPreferences("PHONE",0);
         account = SP.getString("phone_num",null);
 
+        todo();
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                todo();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+        return view;
+    }
+
+    public void todo(){
         listOrders = new ArrayList<>();
         address.clear();
         date.clear();
@@ -146,33 +184,49 @@ public class FragmentDungle extends Fragment {
                     String create_at = formatter.format(date);
                     if (account_status != 2){
                         checkAccount();
-                    }
+                    }else {
+                        checkAvailable(idArr[position]);
 
-                    checkAvailable(idArr[position]);
-
-                    Intent detail = new Intent(getActivity(), SubmitOrderActivity.class);
-                    detail.putExtra("idOrder",idArr[position]);
-                    detail.putExtra("orderType","Dùng lẻ");
-                    try
-                    {
-                        com.example.coosinstaff.connection.ConnectionDB conStr=new com.example.coosinstaff.connection.ConnectionDB();
-                        connect =conStr.CONN();        // Connect to database
-                        if (connect == null){checkConnectDialog();}
-                        else {
-                            // Change below query according to your own database.
-                            String query = "UPDATE ORDER_SINGLE SET USER_SUBMIT='"+account+"',DATE_SUBMIT='"+create_at+"'" +
-                                    ",STATUS_ORDER=N'Đã tìm được NV' WHERE ID="+idArr[position]+"";
-                            Statement stmt = connect.createStatement();
-                            stmt.executeQuery(query);
+                        Intent detail = new Intent(getActivity(), SubmitOrderActivity.class);
+                        detail.putExtra("idOrder",idArr[position]);
+                        detail.putExtra("orderType","Dùng lẻ");
+                        try
+                        {
+                            com.example.coosinstaff.connection.ConnectionDB conStr=new com.example.coosinstaff.connection.ConnectionDB();
+                            connect =conStr.CONN();        // Connect to database
+                            if (connect == null){checkConnectDialog();}
+                            else {
+                                // Change below query according to your own database.
+                                String query = "UPDATE ORDER_SINGLE SET USER_SUBMIT='"+account+"',DATE_SUBMIT='"+create_at+"'" +
+                                        ",STATUS_ORDER=N'Đã tìm được NV' WHERE ID="+idArr[position]+"";
+                                Statement stmt = connect.createStatement();
+                                stmt.executeQuery(query);
+                            }
+                            connect.close();
                         }
-                        connect.close();
+                        catch (Exception ex)
+                        {
+//                            //notification
+//                            NOTIFICATION_TITLE = "CoOsin";
+//                            NOTIFICATION_MESSAGE ="Có lịch mới";
+//
+//                            JSONObject notification = new JSONObject();
+//                            JSONObject notifcationBody = new JSONObject();
+//                            try {
+//                                notifcationBody.put("title", NOTIFICATION_TITLE);
+//                                notifcationBody.put("message", NOTIFICATION_MESSAGE);
+//
+//                                notification.put("to", "/topics/2");
+//
+//                                notification.put("data", notifcationBody);
+//                            } catch (JSONException e) {
+//                                Log.e(TAG, "onCreate: " + e.getMessage());
+//                            }
+////                            sendNotification(notification);
+                        }
+                        startActivity(detail);
                     }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    startActivity(detail);
-                    }
+                }
 
                 @Override
                 public void onLongClick(View v, @NonNull int position) {
@@ -180,7 +234,6 @@ public class FragmentDungle extends Fragment {
                 }
             });
         }
-        return view;
     }
 
     public void checkAccount(){
@@ -207,6 +260,10 @@ public class FragmentDungle extends Fragment {
         builder.setPositiveButton("Gọi ngay", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                String s = "tel:" + "0921895314";
+                Intent intent = new Intent(Intent.ACTION_CALL);
+                intent.setData(Uri.parse(s));
+                startActivity(intent);
                 dialogInterface.dismiss();
             }
         });
@@ -241,12 +298,15 @@ public class FragmentDungle extends Fragment {
                 if (rs.getString("STATUS_ORDER").trim().equals("Đã tìm được NV")){
                     AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
                     builder.setTitle("Thông báo");
-                    builder.setMessage("Lịch này đã có người nhận!");
+                    builder.setMessage("Lịch này đã có người nhận, hãy tải lại trang !");
                     builder.setCancelable(false);
                     builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             dialogInterface.dismiss();
+                            Intent intent = new Intent(getActivity(), HomeActivity.class);
+                            startActivity(intent);
+                            getActivity().finish();
                         }
                     });
                     AlertDialog alertDialog = builder.create();
@@ -257,6 +317,31 @@ public class FragmentDungle extends Fragment {
         catch (Exception e){
 
         }
-        return;
     }
+
+//    private void sendNotification(JSONObject notification) {
+//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(FCM_API, notification,
+//                new Response.Listener<JSONObject>() {
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//
+//                    }
+//                },
+//                new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        Toast.makeText(getContext(), "Request error", Toast.LENGTH_LONG).show();
+//                        Log.i(TAG, "onErrorResponse: Didn't work");
+//                    }
+//                }) {
+//            @Override
+//            public Map<String, String> getHeaders() throws AuthFailureError {
+//                Map<String, String> params = new HashMap<>();
+//                params.put("Authorization", serverKey);
+//                params.put("Content-Type", contentType);
+//                return params;
+//            }
+//        };
+//        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
+//    }
 }

@@ -14,7 +14,9 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.coosinstaff.connection.ConnectionDB;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.core.Context;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -92,7 +94,7 @@ public class RegisterActivity extends AppCompatActivity {
                 //check so dien thoai chua dang ky
                 try
                 {
-                    com.example.coosinstaff.connection.ConnectionDB conStr=new com.example.coosinstaff.connection.ConnectionDB();
+                    ConnectionDB conStr=new com.example.coosinstaff.connection.ConnectionDB();
                     connect =conStr.CONN();        // Connect to database
                     if (connect == null)
                     {
