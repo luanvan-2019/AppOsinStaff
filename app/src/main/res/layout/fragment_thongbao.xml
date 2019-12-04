@@ -6,7 +6,7 @@
     <TextView
         android:textSize="30sp"
         android:layout_centerInParent="true"
-        android:text="THÔNG BÁO"
+        android:text="THÔNG BÁO TRỐNG"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 </RelativeLayout>

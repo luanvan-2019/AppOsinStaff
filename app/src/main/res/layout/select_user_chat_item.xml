@@ -9,6 +9,11 @@
     android:paddingBottom="10dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
+        android:padding="10dp"
+        android:src="@drawable/ic_loading"
+        android:layout_width="50dp"
+        android:layout_height="50dp"/>
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/select_user_image"
         android:src="@mipmap/ic_launcher"
         android:layout_width="50dp"

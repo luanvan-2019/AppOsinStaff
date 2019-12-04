@@ -32,6 +32,8 @@ import com.example.coosinstaff.SubmitOrderActivity;
 import com.example.coosinstaff.adapter.ListAdapter;
 import com.example.coosinstaff.model.ListOrder;
 import com.example.coosinstaff.model.OnItemClickListener;
+import com.example.coosinstaff.notifications.MySingleton;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,9 +56,11 @@ public class FragmentDungle extends Fragment {
     RecyclerView recyclerView;
     ArrayList<ListOrder> listOrders;
     ListAdapter orderListAdapter;
-    String account;
-    Integer account_status;
+    String account,accountName;
+    Integer account_status,checkAvailable=0;
     Connection connect;
+
+    ArrayList<String> cusPhone = new ArrayList<String>();
 
     ArrayList<String> address = new ArrayList<String>();
     ArrayList<String> date = new ArrayList<String>();
@@ -65,7 +69,7 @@ public class FragmentDungle extends Fragment {
     ArrayList<Integer> price = new ArrayList<Integer>();
     ArrayList<Integer> seen = new ArrayList<Integer>();
     ArrayList<Integer> id = new ArrayList<Integer>();
-    String[] addressArr,dateArr,timeArr,create_atArr;
+    String[] addressArr,dateArr,timeArr,create_atArr,cusPhoneArr;
     Integer[] priceArr,seenArr,idArr;
 
     SwipeRefreshLayout swipeRefreshLayout;
@@ -88,12 +92,37 @@ public class FragmentDungle extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerview);
         swipeRefreshLayout = view.findViewById(R.id.swipe_dungle);
 
-
         //lay so dien thoai da luu khi dang nhap
         SharedPreferences SP = getContext().getSharedPreferences("PHONE",0);
         account = SP.getString("phone_num",null);
+        try
+        {
+            com.example.coosinstaff.connection.ConnectionDB conStr=new com.example.coosinstaff.connection.ConnectionDB();
+            connect =conStr.CONN();        // Connect to database
+            if (connect == null)
+            {
+                checkConnectDialog();
+            }
+            else
+            {
+                // Change below query according to your own database.
+                String query = "select * from EMPLOYEE WHERE PHONE_NUM='"+account+"'";
+                Statement stmt = connect.createStatement();
+                ResultSet rs = stmt.executeQuery(query);
+                if (rs.next())
+                {
+                    accountName = rs.getString("FULL_NAME");
+                }
+                connect.close();
+            }
+        }
+        catch (Exception ex)
+        {
+            Toast.makeText(getContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
 
         todo();
+
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -114,6 +143,7 @@ public class FragmentDungle extends Fragment {
         price.clear();
         create_at.clear();
         seen.clear();
+        cusPhone.clear();
 
         try
         {
@@ -126,7 +156,7 @@ public class FragmentDungle extends Fragment {
             else
             {
                 // Change below query according to your own database.
-                String query = "select * from ORDER_SINGLE where STATUS_ORDER=N'Đang tìm kiếm NV'";
+                String query = "select * from ORDER_SINGLE where STATUS_ORDER=N'Đang tìm kiếm NV' ORDER BY ID DESC";
                 Statement stmt = connect.createStatement();
                 ResultSet rs = stmt.executeQuery(query);
                 while (rs.next())
@@ -138,7 +168,11 @@ public class FragmentDungle extends Fragment {
                     create_at.add(rs.getString("CREATE_AT"));
                     seen.add(rs.getInt("SEEN"));
                     id.add(rs.getInt("ID"));
+                    cusPhone.add(rs.getString("USER_ORDER"));
                 }
+                cusPhoneArr = new String[cusPhone.size()];
+                cusPhoneArr = cusPhone.toArray(cusPhoneArr);
+
                 addressArr = new String[address.size()];
                 addressArr = address.toArray(addressArr);
                 dateArr = new String[date.size()];
@@ -185,46 +219,50 @@ public class FragmentDungle extends Fragment {
                     if (account_status != 2){
                         checkAccount();
                     }else {
+                        checkAvailable=0;
                         checkAvailable(idArr[position]);
 
-                        Intent detail = new Intent(getActivity(), SubmitOrderActivity.class);
-                        detail.putExtra("idOrder",idArr[position]);
-                        detail.putExtra("orderType","Dùng lẻ");
-                        try
-                        {
-                            com.example.coosinstaff.connection.ConnectionDB conStr=new com.example.coosinstaff.connection.ConnectionDB();
-                            connect =conStr.CONN();        // Connect to database
-                            if (connect == null){checkConnectDialog();}
-                            else {
-                                // Change below query according to your own database.
-                                String query = "UPDATE ORDER_SINGLE SET USER_SUBMIT='"+account+"',DATE_SUBMIT='"+create_at+"'" +
-                                        ",STATUS_ORDER=N'Đã tìm được NV' WHERE ID="+idArr[position]+"";
-                                Statement stmt = connect.createStatement();
-                                stmt.executeQuery(query);
+                        if (checkAvailable!=1){
+                            Intent detail = new Intent(getActivity(), SubmitOrderActivity.class);
+                            detail.putExtra("idOrder",idArr[position]);
+                            detail.putExtra("orderType","Dùng lẻ");
+                            try
+                            {
+                                com.example.coosinstaff.connection.ConnectionDB conStr=new com.example.coosinstaff.connection.ConnectionDB();
+                                connect =conStr.CONN();        // Connect to database
+                                if (connect == null){checkConnectDialog();}
+                                else {
+                                    // Change below query according to your own database.
+                                    String query = "UPDATE ORDER_SINGLE SET USER_SUBMIT='"+account+"',DATE_SUBMIT='"+create_at+"'" +
+                                            ",STATUS_ORDER=N'Đã tìm được NV' WHERE ID="+idArr[position]+"";
+                                    Statement stmt = connect.createStatement();
+                                    stmt.executeQuery(query);
+                                }
+                                connect.close();
                             }
-                            connect.close();
+                            catch (Exception ex)
+                            {
+                                //notification
+                                NOTIFICATION_TITLE = "CoOsin thông báo ["+cusPhoneArr[position]+"]";
+                                NOTIFICATION_MESSAGE ="Nhân viên "+accountName+" đã nhận ca DL"+idArr[position];
+
+                                JSONObject notification = new JSONObject();
+                                JSONObject notifcationBody = new JSONObject();
+                                try {
+                                    notifcationBody.put("title", NOTIFICATION_TITLE);
+                                    notifcationBody.put("message", NOTIFICATION_MESSAGE);
+
+                                    notification.put("to", "/topics/nhanlich"+cusPhoneArr[position]);
+
+                                    notification.put("data", notifcationBody);
+                                } catch (JSONException e) {
+                                    Log.e(TAG, "onCreate: " + e.getMessage());
+                                }
+                                sendNotification(notification);
+                            }
+                            startActivity(detail);
                         }
-                        catch (Exception ex)
-                        {
-//                            //notification
-//                            NOTIFICATION_TITLE = "CoOsin";
-//                            NOTIFICATION_MESSAGE ="Có lịch mới";
-//
-//                            JSONObject notification = new JSONObject();
-//                            JSONObject notifcationBody = new JSONObject();
-//                            try {
-//                                notifcationBody.put("title", NOTIFICATION_TITLE);
-//                                notifcationBody.put("message", NOTIFICATION_MESSAGE);
-//
-//                                notification.put("to", "/topics/2");
-//
-//                                notification.put("data", notifcationBody);
-//                            } catch (JSONException e) {
-//                                Log.e(TAG, "onCreate: " + e.getMessage());
-//                            }
-////                            sendNotification(notification);
-                        }
-                        startActivity(detail);
+
                     }
                 }
 
@@ -296,6 +334,7 @@ public class FragmentDungle extends Fragment {
             ResultSet rs = stmt.executeQuery(query);
             if (rs.next()){
                 if (rs.getString("STATUS_ORDER").trim().equals("Đã tìm được NV")){
+                    checkAvailable = 1;
                     AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
                     builder.setTitle("Thông báo");
                     builder.setMessage("Lịch này đã có người nhận, hãy tải lại trang !");
@@ -319,29 +358,29 @@ public class FragmentDungle extends Fragment {
         }
     }
 
-//    private void sendNotification(JSONObject notification) {
-//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(FCM_API, notification,
-//                new Response.Listener<JSONObject>() {
-//                    @Override
-//                    public void onResponse(JSONObject response) {
-//
-//                    }
-//                },
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        Toast.makeText(getContext(), "Request error", Toast.LENGTH_LONG).show();
-//                        Log.i(TAG, "onErrorResponse: Didn't work");
-//                    }
-//                }) {
-//            @Override
-//            public Map<String, String> getHeaders() throws AuthFailureError {
-//                Map<String, String> params = new HashMap<>();
-//                params.put("Authorization", serverKey);
-//                params.put("Content-Type", contentType);
-//                return params;
-//            }
-//        };
-//        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
-//    }
+    private void sendNotification(JSONObject notification) {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(FCM_API, notification,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getContext(), "Request error", Toast.LENGTH_LONG).show();
+                        Log.i(TAG, "onErrorResponse: Didn't work");
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", serverKey);
+                params.put("Content-Type", contentType);
+                return params;
+            }
+        };
+        MySingleton.getInstance(getContext()).addToRequestQueue(jsonObjectRequest);
+    }
 }

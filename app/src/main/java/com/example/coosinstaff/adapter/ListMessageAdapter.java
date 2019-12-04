@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.coosinstaff.R;
 import com.example.coosinstaff.model.ChatMessage;
 import com.example.coosinstaff.model.OnItemClickListener;
+import com.squareup.picasso.Picasso;
 import com.thekhaeng.pushdownanim.PushDownAnim;
 
 import java.util.List;
@@ -30,14 +31,16 @@ public class ListMessageAdapter extends RecyclerView.Adapter<ListMessageAdapter.
     List<ChatMessage> mChatMessage;
     private OnItemClickListener mOnItemClickListener;
     private String sender;
+    String avatarUrl;
 
 //    public void setOnItemClickListener(OnItemClickListener mOnItemClickListener){
 //        this.mOnItemClickListener = mOnItemClickListener;
 //    }
 
-    public ListMessageAdapter(Context mContext,List<ChatMessage> mChatMessage) {
+    public ListMessageAdapter(Context mContext,List<ChatMessage> mChatMessage,String avatarUrl) {
         this.mChatMessage = mChatMessage;
         this.mContext = mContext;
+        this.avatarUrl = avatarUrl;
         SharedPreferences SP = mContext.getSharedPreferences("PHONE",0);
         sender = SP.getString("phone_num",null);
     }
@@ -60,6 +63,9 @@ public class ListMessageAdapter extends RecyclerView.Adapter<ListMessageAdapter.
         ChatMessage chatMessage = mChatMessage.get(position);
         holder.show_message.setText(chatMessage.getMessage());
         holder.time.setText(DateFormat.format("HH:mm dd-MM-yyyy",chatMessage.getTime()));
+        if (holder.avavar_receiver!=null){
+            Picasso.get().load(avatarUrl).into(holder.avavar_receiver);
+        }
     }
 
     @Override
@@ -70,13 +76,14 @@ public class ListMessageAdapter extends RecyclerView.Adapter<ListMessageAdapter.
     class ListMessageHolder extends RecyclerView.ViewHolder {
 
         TextView show_message,time;
-        ImageView imgHinhanh;
+        ImageView avavar_receiver;
         //truyen item view vao va anh xa
         public ListMessageHolder(@NonNull View itemView) {
             super(itemView);
 
             show_message = itemView.findViewById(R.id.show_message);
             time = itemView.findViewById(R.id.time_send_message);
+            avavar_receiver = itemView.findViewById(R.id.avavar_receiver);
 
 //            PushDownAnim.setPushDownAnimTo(itemView).setOnClickListener(new View.OnClickListener() {
 //                @Override

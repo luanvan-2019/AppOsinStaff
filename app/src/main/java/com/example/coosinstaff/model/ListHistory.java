@@ -2,10 +2,10 @@ package com.example.coosinstaff.model;
 
 public class ListHistory {
 
-    private String ordertype,date, ca, diadiem,cusName,dateEnd;
+    private String ordertype,date, ca, diadiem,cusName,dateEnd,userOrder;
     private int gia,mahoadon;
 
-    public ListHistory(String ordertype, String date, String ca, String diadiem, int mahoadon, int gia, String cusName, String dateEnd) {
+    public ListHistory(String ordertype, String date, String ca, String diadiem, int mahoadon, int gia, String cusName, String dateEnd,String userOrder) {
         this.ordertype = ordertype;
         this.date = date;
         this.ca = ca;
@@ -14,6 +14,7 @@ public class ListHistory {
         this.gia = gia;
         this.cusName = cusName;
         this.dateEnd = dateEnd;
+        this.userOrder=userOrder;
     }
 
     public String getOrdertype() {
@@ -78,5 +79,13 @@ public class ListHistory {
 
     public void setDateEnd(String dateEnd) {
         this.dateEnd = dateEnd;
+    }
+
+    public String getUserOrder() {
+        return userOrder;
+    }
+
+    public void setUserOrder(String userOrder) {
+        this.userOrder = userOrder;
     }
 }

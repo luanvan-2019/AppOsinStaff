@@ -111,7 +111,7 @@ public class HistoryActivity extends AppCompatActivity {
                     cusNameArr = new String[cusName.size()];
                     cusNameArr = cusName.toArray(cusNameArr);
                     listHistories.add(new ListHistory("Dùng lẻ",dateArr[i],timeArr[i],addressArr[i],
-                            idArr[i],priceArr[i],cusNameArr[i],""));
+                            idArr[i],priceArr[i],cusNameArr[i],"",userSubmitArr[i]));
                 }
 
                 // load dinh ky
@@ -152,7 +152,7 @@ public class HistoryActivity extends AppCompatActivity {
                     cusNameArr = new String[cusName.size()];
                     cusNameArr = cusName.toArray(cusNameArr);
                     listHistories.add(new ListHistory("Định kỳ",dateArr[i],timeArr[i],addressArr[i],
-                            idArr[i],priceArr[i],cusNameArr[i],""));
+                            idArr[i],priceArr[i],cusNameArr[i],"",userSubmitArr[i]));
                 }
 
                 // load tongvesinh
@@ -194,7 +194,7 @@ public class HistoryActivity extends AppCompatActivity {
                     cusNameArr = new String[cusName.size()];
                     cusNameArr = cusName.toArray(cusNameArr);
                     listHistories.add(new ListHistory("Tổng vệ sinh",dateArr[i],timeArr[i],addressArr[i],
-                            idArr[i],priceArr[i],cusNameArr[i],""));
+                            idArr[i],priceArr[i],cusNameArr[i],"",userSubmitArr[i]));
                 }
                 // load cook
                 int c = address.size();
@@ -234,7 +234,7 @@ public class HistoryActivity extends AppCompatActivity {
                     cusNameArr = new String[cusName.size()];
                     cusNameArr = cusName.toArray(cusNameArr);
                     listHistories.add(new ListHistory("Nấu ăn",dateArr[i],timeArr[i],addressArr[i],
-                            idArr[i],priceArr[i],cusNameArr[i],""));
+                            idArr[i],priceArr[i],cusNameArr[i],"",userSubmitArr[i]));
                 }
             }
             connect.close();

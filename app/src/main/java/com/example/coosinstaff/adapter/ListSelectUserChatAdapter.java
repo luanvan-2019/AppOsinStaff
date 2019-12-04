@@ -10,8 +10,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.coosinstaff.R;
+import com.example.coosinstaff.model.AccountAvatar;
 import com.example.coosinstaff.model.ListUserChat;
 import com.example.coosinstaff.model.OnItemClickListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 import com.thekhaeng.pushdownanim.PushDownAnim;
 
 import java.util.ArrayList;
@@ -39,11 +46,33 @@ public class ListSelectUserChatAdapter extends RecyclerView.Adapter<ListSelectUs
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ListSelectUserChatAdapter.ListSelectUserChatHolder holder, int position) {
-        ListUserChat listUserChat = mangListUserChat.get(position);
+    public void onBindViewHolder(@NonNull final ListSelectUserChatAdapter.ListSelectUserChatHolder holder, int position) {
+        final ListUserChat listUserChat = mangListUserChat.get(position);
         holder.txtName.setText(listUserChat.getName());
         holder.txtPhone.setText(listUserChat.getPhone());
-        holder.txtID.setText("MKH: KH"+listUserChat.getId());
+        if (listUserChat.getName().equals("ADMIN")){
+            holder.txtID.setText("");
+        }else {holder.txtID.setText("KH"+listUserChat.getId());}
+        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("avatars");
+        reference1.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    AccountAvatar accountAvatar = snapshot.getValue(AccountAvatar.class);
+                    if (accountAvatar.getAcountPhone().equals(listUserChat.getPhone())) {
+                        Picasso.get().load(accountAvatar.getImageUrl()).into(holder.imgAvatar);
+                    }
+                    if (accountAvatar.getAcountPhone().equals("admin")) {
+                        if (listUserChat.getPhone().equals("Quản trị viên")){
+                            Picasso.get().load(accountAvatar.getImageUrl()).into(holder.imgAvatar);
+                        }
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
 
     }
 
@@ -55,7 +84,7 @@ public class ListSelectUserChatAdapter extends RecyclerView.Adapter<ListSelectUs
     class ListSelectUserChatHolder extends RecyclerView.ViewHolder {
 
         TextView txtName, txtID, txtPhone;
-        ImageView imgHinhanh;
+        ImageView imgAvatar;
         //truyen item view vao va anh xa
         public ListSelectUserChatHolder(@NonNull View itemView) {
             super(itemView);
@@ -63,6 +92,7 @@ public class ListSelectUserChatAdapter extends RecyclerView.Adapter<ListSelectUs
             txtName = itemView.findViewById(R.id.txt_select_user_name);
             txtID = itemView.findViewById(R.id.txt_select_user_id);
             txtPhone = itemView.findViewById(R.id.txt_select_user_phone);
+            imgAvatar = itemView.findViewById(R.id.select_user_image);
 
             PushDownAnim.setPushDownAnimTo(itemView).setOnClickListener(new View.OnClickListener() {
                 @Override

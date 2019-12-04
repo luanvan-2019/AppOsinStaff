@@ -8,12 +8,21 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.coosinstaff.model.AccountAvatar;
 import com.example.coosinstaff.model.ListHistory;
 import com.example.coosinstaff.model.OnItemClickListener;
 import com.example.coosinstaff.R;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ListAdapterHistory extends RecyclerView.Adapter<ListAdapterHistory.ListHistoryHolder> {
 
@@ -36,8 +45,8 @@ public class ListAdapterHistory extends RecyclerView.Adapter<ListAdapterHistory.
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ListAdapterHistory.ListHistoryHolder holder, int position) {
-        ListHistory listHistory = mangListhistory.get(position);
+    public void onBindViewHolder(@NonNull final ListAdapterHistory.ListHistoryHolder holder, int position) {
+        final ListHistory listHistory = mangListhistory.get(position);
         holder.txtOrderType.setText(listHistory.getOrdertype());
         DecimalFormat decimalFormat = new DecimalFormat("#,###");
         String totalGiaString = decimalFormat.format(listHistory.getGia());
@@ -62,6 +71,22 @@ public class ListAdapterHistory extends RecyclerView.Adapter<ListAdapterHistory.
             holder.txtDateEnd.setText("đến  "+listHistory.getDateEnd());
         }
 
+        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("avatars");
+        reference1.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    AccountAvatar accountAvatar = snapshot.getValue(AccountAvatar.class);
+                    if (accountAvatar.getAcountPhone().equals(listHistory.getUserOrder())){
+                        Picasso.get().load(accountAvatar.getImageUrl()).into(holder.icAvatar);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+
     }
 
     @Override
@@ -72,6 +97,7 @@ public class ListAdapterHistory extends RecyclerView.Adapter<ListAdapterHistory.
     class ListHistoryHolder extends RecyclerView.ViewHolder {
 
         TextView txtDate, txtCa, txtDiadiem, txtMahoadon, gia,txtOrderType,txtEmpName,txtDateEnd;
+        CircleImageView icAvatar;
 
         public ListHistoryHolder(@NonNull View itemView) {
             super(itemView);
@@ -83,6 +109,7 @@ public class ListAdapterHistory extends RecyclerView.Adapter<ListAdapterHistory.
             gia = itemView.findViewById(R.id.gia);
             txtEmpName = itemView.findViewById(R.id.txt_cus_name);
             txtDateEnd =itemView.findViewById(R.id.date_order_end);
+            icAvatar = itemView.findViewById(R.id.avatar_cus);
         }
     }
 

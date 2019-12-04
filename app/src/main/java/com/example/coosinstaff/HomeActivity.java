@@ -7,7 +7,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -23,17 +24,25 @@ import com.example.coosinstaff.fragment.HotroFragment;
 import com.example.coosinstaff.fragment.LichlamviecFragment;
 import com.example.coosinstaff.fragment.ThongbaoFragment;
 import com.example.coosinstaff.fragment.VideogioithieuFragment;
+import com.example.coosinstaff.model.AccountAvatar;
 import com.example.coosinstaff.model.CheckLogined;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    String account;
+    String account,userName="",userType="";
     Toolbar toolbar;
     private DrawerLayout drawer;
     Connection connect;
@@ -47,7 +56,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences SP = getApplicationContext().getSharedPreferences("PHONE",0);
         account = SP.getString("phone_num",null);
 
-        FirebaseMessaging.getInstance().subscribeToTopic("/topics/lich");
+//        FirebaseMessaging.getInstance().subscribeToTopic("lich");
 
         try {
             com.example.coosinstaff.connection.ConnectionDB conStr = new com.example.coosinstaff.connection.ConnectionDB();
@@ -76,6 +85,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                     AlertDialog alertDialog = builder.create();
                     alertDialog.show();
                 }
+                userName = rs.getString("FULL_NAME");
+                if (rs.getInt("EMP_TYPE")==1){
+                    userType="Nhân viên vệ sinh";
+                }else if (rs.getInt("EMP_TYPE")==2){
+                    userType="Nhân viên nấu ăn";
+                }else userType = "Nhân viên đa năng";
                 connect.close();
 
             }
@@ -83,13 +98,35 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         catch (Exception e){
 
         }
+        NavigationView navigationView =  findViewById(R.id.nav_view);
+        View headerView = navigationView.getHeaderView(0);
+        TextView navUsername =  headerView.findViewById(R.id.txt_account_name);
+        TextView navUserType =  headerView.findViewById(R.id.txt_account_emp_type);
+        final CircleImageView imgAvatar = headerView.findViewById(R.id.imgAvatar);
+        navUsername.setText(userName);
+        navUserType.setText(userType);
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("avatars");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    AccountAvatar accountAvatar = snapshot.getValue(AccountAvatar.class);
+                    if (accountAvatar.getAcountPhone().equals(account)){
+                        Picasso.get().load(accountAvatar.getImageUrl()).into(imgAvatar);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
 
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Lịch làm việc");
         setSupportActionBar(toolbar);
 
         drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,drawer,toolbar,R.string.navigation_drawer_open,
@@ -108,7 +145,30 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)){
             drawer.closeDrawer(GravityCompat.START);
-        }else super.onBackPressed();
+        }else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Xác nhận");
+            builder.setMessage("Bạn muốn đóng ứng dụng?");
+            builder.setCancelable(false);
+            builder.setPositiveButton("Ở lại", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            builder.setNegativeButton("Thoát", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(Intent.ACTION_MAIN);
+                    intent.addCategory(Intent.CATEGORY_HOME);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                }
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        }
     }
 
     @Override
@@ -137,8 +197,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new DaotaoFragment()).commit();
                 break;
             case R.id.nav_hotro:
-                toolbar.setTitle("Hỗ trợ");
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HotroFragment()).commit();
+                String s = "tel:" + "0921895314";
+                Intent intent = new Intent(Intent.ACTION_CALL);
+                intent.setData(Uri.parse(s));
+                startActivity(intent);
                 break;
             case R.id.nav_chat:
                 toolbar.setTitle("Tin nhắn");
@@ -203,4 +265,5 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
+
 }

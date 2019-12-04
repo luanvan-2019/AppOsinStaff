@@ -138,7 +138,7 @@ public class SubmitedActivity extends AppCompatActivity {
             else
             {
                 // Change below query according to your own database.
-                String query = "select * from ORDER_SINGLE where USER_SUBMIT= '" + account  + "' AND STATUS_ORDER!='Hoàn thành'";
+                String query = "select * from ORDER_SINGLE where USER_SUBMIT= '" + account  + "' AND STATUS_ORDER!=N'Hoàn thành'";
                 Statement stmt = connect.createStatement();
                 ResultSet rs = stmt.executeQuery(query);
                 while (rs.next())
@@ -169,7 +169,7 @@ public class SubmitedActivity extends AppCompatActivity {
 
                 //load dinh ky da nhan
                 int a = address.size();
-                String query1 = "select * from ORDER_MULTI where USER_SUBMIT= '" + account  + "' AND ORDER_STATUS!='Hoàn thành'";
+                String query1 = "select * from ORDER_MULTI where USER_SUBMIT= '" + account  + "' AND ORDER_STATUS!=N'Hoàn thành'";
                 Statement stmt1 = connect.createStatement();
                 ResultSet rs1 = stmt1.executeQuery(query1);
                 while (rs1.next())
@@ -200,8 +200,7 @@ public class SubmitedActivity extends AppCompatActivity {
 
                 //load tong ve sinh da nhan
                 int b = address.size();
-                String query2 = "select * from ORDER_OVERVIEW where USER_SUBMIT1= '"+account+"' OR USER_SUBMIT2= '"+account+"' OR USER_SUBMIT3='"+account+"'" +
-                        "AND ORDER_STATUS!='Hoàn thành'";
+                String query2 = "select * from ORDER_OVERVIEW where ORDER_STATUS!=N'Hoàn thành' AND (USER_SUBMIT1= '"+account+"' OR USER_SUBMIT2= '"+account+"' OR USER_SUBMIT3='"+account+"')";
                 Statement stmt2 = connect.createStatement();
                 ResultSet rs2 = stmt2.executeQuery(query2);
                 while (rs2.next())
@@ -232,7 +231,7 @@ public class SubmitedActivity extends AppCompatActivity {
 
                 //load tong ve sinh da nhan
                 int c = address.size();
-                String query3 = "select * from ORDER_COOK where USER_SUBMIT='"+account+"' AND ORDER_STATUS != 'Hoàn thành'";
+                String query3 = "select * from ORDER_COOK where USER_SUBMIT='"+account+"' AND ORDER_STATUS != N'Hoàn thành'";
                 Statement stmt3 = connect.createStatement();
                 ResultSet rs3 = stmt3.executeQuery(query3);
                 while (rs3.next())

@@ -22,6 +22,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.coosinstaff.HomeActivity;
 import com.example.coosinstaff.R;
 import com.example.coosinstaff.SubmitOrderActivity;
@@ -30,6 +34,10 @@ import com.example.coosinstaff.adapter.ListAdapterTVS;
 import com.example.coosinstaff.model.ListOrder;
 import com.example.coosinstaff.model.ListOrderTVS;
 import com.example.coosinstaff.model.OnItemClickListener;
+import com.example.coosinstaff.notifications.MySingleton;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -38,6 +46,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FragmentTVS extends Fragment {
 
@@ -49,6 +59,8 @@ public class FragmentTVS extends Fragment {
     Integer account_status;
     Connection connect;
 
+    ArrayList<String> cusPhone = new ArrayList<String>();
+
     ArrayList<String> address = new ArrayList<String>();
     ArrayList<String> userSubmitAmount = new ArrayList<String>();
     ArrayList<String> date = new ArrayList<String>();
@@ -58,11 +70,18 @@ public class FragmentTVS extends Fragment {
     ArrayList<Integer> seen = new ArrayList<Integer>();
     ArrayList<Integer> area = new ArrayList<Integer>();
     ArrayList<Integer> id = new ArrayList<Integer>();
-    String[] addressArr,dateArr,timeArr,create_atArr,userSubmitAmountArr;
+    String[] addressArr,dateArr,timeArr,create_atArr,userSubmitAmountArr,cusPhoneArr;
     Integer[] priceArr,seenArr,areaArr,idArr;
-    String arena_type;
+    String arena_type,accountName;
 
     SwipeRefreshLayout swipeRefreshLayout;
+
+    final private String FCM_API = "https://fcm.googleapis.com/fcm/send";
+    final private String serverKey = "key=" + "AAAAZNB3xoU:APA91bGxISuo_YVJ7-142Aua8xMYvafuhaZvNIf01IeOzVrZ1hEypTqdP53X3pMZg_Mx3XkkVJOdiiDCMnHp00ytrTJxLDaozcdVpEXc1AsciThWq5ZkiDOHswqSHsLEskoVXOpC8SZC";
+    final private String contentType = "application/json";
+    final String TAG = "NOTIFICATION TAG";
+    String NOTIFICATION_TITLE;
+    String NOTIFICATION_MESSAGE;
 
     public FragmentTVS() {
     }
@@ -78,6 +97,32 @@ public class FragmentTVS extends Fragment {
         //lay so dien thoai da luu khi dang nhap
         SharedPreferences SP = getContext().getSharedPreferences("PHONE",0);
         account = SP.getString("phone_num",null);
+
+        try
+        {
+            com.example.coosinstaff.connection.ConnectionDB conStr=new com.example.coosinstaff.connection.ConnectionDB();
+            connect =conStr.CONN();        // Connect to database
+            if (connect == null)
+            {
+                checkConnectDialog();
+            }
+            else
+            {
+                // Change below query according to your own database.
+                String query = "select * from EMPLOYEE WHERE PHONE_NUM='"+account+"'";
+                Statement stmt = connect.createStatement();
+                ResultSet rs = stmt.executeQuery(query);
+                if (rs.next())
+                {
+                    accountName = rs.getString("FULL_NAME");
+                }
+                connect.close();
+            }
+        }
+        catch (Exception ex)
+        {
+            Toast.makeText(getContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
 
         todo();
 
@@ -115,7 +160,7 @@ public class FragmentTVS extends Fragment {
             {
                 // Change below query according to your own database.
                 String query = "select * from ORDER_OVERVIEW where USER_SUBMIT1 !='"+account+"' AND USER_SUBMIT2 !='"+account+"' AND USER_SUBMIT3!='"+account+"'" +
-                        " OR AREA_TYPE=1 AND USER_SUBMIT2='' AND AREA_TYPE=2 AND USER_SUBMIT3=''";
+                        " OR AREA_TYPE=1 AND USER_SUBMIT2='' AND AREA_TYPE=2 AND USER_SUBMIT3='' ORDER BY ID DESC";
                 Statement stmt = connect.createStatement();
                 ResultSet rs = stmt.executeQuery(query);
                 while (rs.next())
@@ -144,8 +189,12 @@ public class FragmentTVS extends Fragment {
                     create_at.add(rs.getString("CREATE_AT"));
                     seen.add(rs.getInt("SEEN"));
                     id.add(rs.getInt("ID"));
+                    cusPhone.add(rs.getString("USER_ORDER"));
 
                 }
+                cusPhoneArr = new String[cusPhone.size()];
+                cusPhoneArr = cusPhone.toArray(cusPhoneArr);
+
                 addressArr = new String[address.size()];
                 addressArr = address.toArray(addressArr);
                 dateArr = new String[date.size()];
@@ -241,6 +290,23 @@ public class FragmentTVS extends Fragment {
                         }
                         catch (Exception ex)
                         {
+                            //notification
+                            NOTIFICATION_TITLE = "CoOsin thông báo ["+cusPhoneArr[position]+"]";
+                            NOTIFICATION_MESSAGE ="Nhân viên "+accountName+" đã nhận ca TVS"+idArr[position];
+
+                            JSONObject notification = new JSONObject();
+                            JSONObject notifcationBody = new JSONObject();
+                            try {
+                                notifcationBody.put("title", NOTIFICATION_TITLE);
+                                notifcationBody.put("message", NOTIFICATION_MESSAGE);
+
+                                notification.put("to", "/topics/nhanlich"+cusPhoneArr[position]);
+
+                                notification.put("data", notifcationBody);
+                            } catch (JSONException e) {
+                                Log.e(TAG, "onCreate: " + e.getMessage());
+                            }
+                            sendNotification(notification);
                             Log.d("BBB",ex.getMessage());
                         }
                         Intent detail = new Intent(getActivity(), SubmitOrderActivity.class);
@@ -360,5 +426,31 @@ public class FragmentTVS extends Fragment {
         catch (Exception e){
 
         }
+    }
+
+    private void sendNotification(JSONObject notification) {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(FCM_API, notification,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getContext(), "Request error", Toast.LENGTH_LONG).show();
+                        Log.i(TAG, "onErrorResponse: Didn't work");
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", serverKey);
+                params.put("Content-Type", contentType);
+                return params;
+            }
+        };
+        MySingleton.getInstance(getContext()).addToRequestQueue(jsonObjectRequest);
     }
 }

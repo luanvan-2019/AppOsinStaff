@@ -5,6 +5,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -48,6 +50,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MapDirectionActivity extends AppCompatActivity implements
         OnMapReadyCallback, View.OnClickListener {
@@ -185,6 +188,33 @@ public class MapDirectionActivity extends AppCompatActivity implements
                 {
                     // Change below query according to your own database.
                     String query = "select * from ORDER_OVERVIEW where ID="+idOrder+"";
+                    Statement stmt = connect.createStatement();
+                    ResultSet rs = stmt.executeQuery(query);
+                    if (rs.next())
+                    {
+                        latitudeOrder=rs.getFloat("LATITUDE");
+                        longitudeOrder=rs.getFloat("LONGITUDE");
+                    }
+                }
+                connect.close();
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }else {
+            try
+            {
+                com.example.coosinstaff.connection.ConnectionDB conStr=new com.example.coosinstaff.connection.ConnectionDB();
+                connect =conStr.CONN();        // Connect to database
+                if (connect == null)
+                {
+                    Toast.makeText(getApplicationContext(),"Không có kết nối mạng !",Toast.LENGTH_LONG).show();
+                }
+                else
+                {
+                    // Change below query according to your own database.
+                    String query = "select * from ORDER_COOK where ID="+idOrder+"";
                     Statement stmt = connect.createStatement();
                     ResultSet rs = stmt.executeQuery(query);
                     if (rs.next())
@@ -367,6 +397,21 @@ public class MapDirectionActivity extends AppCompatActivity implements
     };
 
     public void addMarkerToMap(int length){
+        LocationManager mLocationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
+        List<String> providers = mLocationManager.getProviders(true);
+        Location bestLocation = null;
+        for (String provider : providers) {
+            if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED) {
+                mLocation = mLocationManager.getLastKnownLocation(provider);
+            }
+            if (mLocation == null) {
+                continue;
+            }
+            if (bestLocation == null || mLocation.getAccuracy() < bestLocation.getAccuracy()) {
+                bestLocation = mLocation;
+            }
+        }
+        mLocation = bestLocation;
         markerOptions = new MarkerOptions();
         for(int i=0; i<length;i++){
             ll = new LatLng(

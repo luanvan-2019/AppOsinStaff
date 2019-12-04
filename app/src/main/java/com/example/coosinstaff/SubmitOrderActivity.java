@@ -1,5 +1,6 @@
 package com.example.coosinstaff;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -22,7 +23,22 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.coosinstaff.model.AccountAvatar;
+import com.example.coosinstaff.notifications.MySingleton;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 import com.thekhaeng.pushdownanim.PushDownAnim;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -31,6 +47,10 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SubmitOrderActivity extends AppCompatActivity {
 
@@ -42,13 +62,22 @@ public class SubmitOrderActivity extends AppCompatActivity {
     LinearLayout linCall,linChat,linMapDirection,linDongngiep;
     RelativeLayout relSobuoicon,relDientich,relDN1,relDN2,relNauAn,relMaxMarket;
     View line1,line2;
-    ImageView node2,node3,avatarDN1,avatarDN2;
+    ImageView node2,node3;
     Button btnConfirmPay,btnBaoNghi;
     Connection connect;
     Integer paymentStatus,sobuoiDalam;
-    String account;
+    String account,accountName;
+
+    CircleImageView avatar_customer,avatarDN1,avatarDN2;
 
     SwipeRefreshLayout swipeRefreshLayout;
+
+    final private String FCM_API = "https://fcm.googleapis.com/fcm/send";
+    final private String serverKey = "key=" + "AAAAZNB3xoU:APA91bGxISuo_YVJ7-142Aua8xMYvafuhaZvNIf01IeOzVrZ1hEypTqdP53X3pMZg_Mx3XkkVJOdiiDCMnHp00ytrTJxLDaozcdVpEXc1AsciThWq5ZkiDOHswqSHsLEskoVXOpC8SZC";
+    final private String contentType = "application/json";
+    final String TAG = "NOTIFICATION TAG";
+    String NOTIFICATION_TITLE;
+    String NOTIFICATION_MESSAGE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +100,32 @@ public class SubmitOrderActivity extends AppCompatActivity {
         SharedPreferences SP = this.getSharedPreferences("PHONE",0);
         account = SP.getString("phone_num",null);
 
+        try
+        {
+            com.example.coosinstaff.connection.ConnectionDB conStr=new com.example.coosinstaff.connection.ConnectionDB();
+            connect =conStr.CONN();        // Connect to database
+            if (connect == null)
+            {
+                checkConnectDialog();
+            }
+            else
+            {
+                // Change below query according to your own database.
+                String query = "select * from EMPLOYEE WHERE PHONE_NUM='"+account+"'";
+                Statement stmt = connect.createStatement();
+                ResultSet rs = stmt.executeQuery(query);
+                if (rs.next())
+                {
+                    accountName = rs.getString("FULL_NAME");
+                }
+                connect.close();
+            }
+        }
+        catch (Exception ex)
+        {
+            Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
         todo();
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -80,6 +135,8 @@ public class SubmitOrderActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+
+
 
     }
 
@@ -269,7 +326,30 @@ public class SubmitOrderActivity extends AppCompatActivity {
                     catch (Exception ex){
                         Log.d("BBB",ex.getMessage()+"3");
                     }
+
                 }
+                DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("avatars");
+                reference1.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                            AccountAvatar accountAvatar = snapshot.getValue(AccountAvatar.class);
+                            if (!txtPhoneDN1.getText().toString().trim().equals("")){
+                                if (accountAvatar.getAcountPhone().equals(txtPhoneDN1.getText().toString())){
+                                    Picasso.get().load(accountAvatar.getImageUrl()).into(avatarDN1);
+                                }
+                            }
+                            if (!txtPhoneDN2.getText().toString().trim().equals("")){
+                                if (accountAvatar.getAcountPhone().equals(txtPhoneDN2.getText().toString())){
+                                    Picasso.get().load(accountAvatar.getImageUrl()).into(avatarDN2);
+                                }
+                            }
+                        }
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
             }
         });
 
@@ -304,6 +384,34 @@ public class SubmitOrderActivity extends AppCompatActivity {
                 Intent intent = new Intent(SubmitOrderActivity.this,ChatActivity.class);
                 intent.putExtra("receiver",userOrder);
                 startActivity(intent);
+            }
+        });
+
+        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("avatars");
+        reference1.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    AccountAvatar accountAvatar = snapshot.getValue(AccountAvatar.class);
+                    if (accountAvatar.getAcountPhone().equals(userOrder)){
+                        Picasso.get().load(accountAvatar.getImageUrl()).into(avatar_customer);
+                    }
+                    if (orderType.trim().equals("Tổng vệ sinh")){
+                        if (!txtPhoneDN1.getText().toString().trim().equals("")){
+                            if (accountAvatar.getAcountPhone().equals(txtPhoneDN1.getText().toString())){
+                                Picasso.get().load(accountAvatar.getImageUrl()).into(avatarDN1);
+                            }
+                        }
+                        if (!txtPhoneDN2.getText().toString().trim().equals("")){
+                            if (accountAvatar.getAcountPhone().equals(txtPhoneDN2.getText().toString())){
+                                Picasso.get().load(accountAvatar.getImageUrl()).into(avatarDN2);
+                            }
+                        }
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
 
@@ -352,6 +460,7 @@ public class SubmitOrderActivity extends AppCompatActivity {
         txtListDongnhgiep = findViewById(R.id.list_dongnghiep);
         avatarDN1 = findViewById(R.id.avatar_dongnghiep1);
         avatarDN2 = findViewById(R.id.avatar_dongnghiep2);
+        avatar_customer = findViewById(R.id.avatar_customer);
         txtNameDN1 = findViewById(R.id.txt_name_dn1);
         txtNameDN2 = findViewById(R.id.txt_name_dn2);
         txtPhoneDN1 = findViewById(R.id.txt_phone_dn1);
@@ -427,6 +536,23 @@ public class SubmitOrderActivity extends AppCompatActivity {
                     connect.close();
                 }
                 catch (Exception ex){
+                    //notification
+                    NOTIFICATION_TITLE = "CoOsin thanh toán ["+userOrder+"]";
+                    NOTIFICATION_MESSAGE ="Ca làm "+txtMDH.getText().toString()+" đã được thanh toán";
+
+                    JSONObject notification = new JSONObject();
+                    JSONObject notifcationBody = new JSONObject();
+                    try {
+                        notifcationBody.put("title", NOTIFICATION_TITLE);
+                        notifcationBody.put("message", NOTIFICATION_MESSAGE);
+
+                        notification.put("to", "/topics/lich");
+
+                        notification.put("data", notifcationBody);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "onCreate: " + e.getMessage());
+                    }
+                    sendNotification(notification);
                     Toast.makeText(getApplicationContext(), "Xác nhận thành công", Toast.LENGTH_LONG).show();
                     txtPayStatus.setBackgroundResource(R.drawable.bg_text);
                 }
@@ -731,6 +857,23 @@ public class SubmitOrderActivity extends AppCompatActivity {
 
                     }
                 }
+                //notification
+                NOTIFICATION_TITLE = "CoOsin NV báo nghỉ đến ["+userOrder+"]";
+                NOTIFICATION_MESSAGE ="Nhân viên "+accountName+" đã báo nghỉ ca làm "+txtMDH.getText().toString();
+
+                JSONObject notification = new JSONObject();
+                JSONObject notifcationBody = new JSONObject();
+                try {
+                    notifcationBody.put("title", NOTIFICATION_TITLE);
+                    notifcationBody.put("message", NOTIFICATION_MESSAGE);
+
+                    notification.put("to", "/topics/lich");
+
+                    notification.put("data", notifcationBody);
+                } catch (JSONException e) {
+                    Log.e(TAG, "onCreate: " + e.getMessage());
+                }
+                sendNotification(notification);
 
             }
         });
@@ -745,5 +888,31 @@ public class SubmitOrderActivity extends AppCompatActivity {
 
         TextView messageText = alertDialog.findViewById(android.R.id.message);
         messageText.setGravity(Gravity.CENTER);
+    }
+
+    private void sendNotification(JSONObject notification) {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(FCM_API, notification,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(SubmitOrderActivity.this, "Request error", Toast.LENGTH_LONG).show();
+                        Log.i(TAG, "onErrorResponse: Didn't work");
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", serverKey);
+                params.put("Content-Type", contentType);
+                return params;
+            }
+        };
+        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
     }
 }
